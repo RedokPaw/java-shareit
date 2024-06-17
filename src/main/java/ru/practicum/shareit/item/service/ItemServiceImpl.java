@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.ItemMapper;
@@ -18,7 +17,6 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 
 @Service
-@Slf4j
 public class ItemServiceImpl implements ItemService {
 
     ItemDao itemDao;
