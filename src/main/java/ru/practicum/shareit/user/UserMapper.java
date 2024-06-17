@@ -13,4 +13,16 @@ public class UserMapper {
                 .email(Optional.ofNullable(user.getEmail()))
                 .build();
     }
+
+    public static User toUser(UserDto userDto) {
+        User user = new User();
+        user.setId(userDto.getId());
+        if (userDto.getEmail().isPresent()) {
+            user.setEmail(userDto.getEmail().get());
+        }
+        if (userDto.getName().isPresent()) {
+            user.setName(userDto.getName().get());
+        }
+        return user;
+    }
 }

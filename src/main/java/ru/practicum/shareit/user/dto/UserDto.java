@@ -3,13 +3,13 @@ package ru.practicum.shareit.user.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import java.util.Optional;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 @Builder
 public class UserDto {
 
@@ -17,5 +17,10 @@ public class UserDto {
 
     private Optional<String> name;
 
-    private Optional<String> email;
+    private Optional<@NotBlank @Email String> email;
+
+    public UserDto() {
+        name = Optional.empty();
+        email = Optional.empty();
+    }
 }

@@ -2,15 +2,15 @@ package ru.practicum.shareit.item.dao;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
-import ru.practicum.shareit.item.exception.ItemOwnerMismatchException;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static java.lang.String.format;
 
 @Repository
 @Slf4j
@@ -22,7 +22,11 @@ public class InMemoryItemStorage implements ItemDao {
 
     @Override
     public Item getItem(int id) {
-        return items.get(id);
+        Item item = items.get(id);
+        if (item == null) {
+            throw new ItemNotFoundException(format("item with id '%d' not found", id));
+        }
+        return item;
     }
 
     @Override
@@ -33,30 +37,9 @@ public class InMemoryItemStorage implements ItemDao {
     }
 
     @Override
-    public Item updateItem(int itemId, ItemDto itemDto, int ownerId) {
-        if (itemId == 0 || !items.containsKey(itemId)) {
-            throw new ItemNotFoundException("Item not found");
-        }
-        Item oldItem = items.get(itemId);
-        if (ownerId != oldItem.getOwnerId()) {
-            throw new ItemOwnerMismatchException("Owner id mismatch");
-        }
-        if (itemDto.getName().isPresent()) {
-            oldItem.setName(itemDto.getName().get());
-        }
-        if (itemDto.getDescription().isPresent()) {
-            oldItem.setDescription(itemDto.getDescription().get());
-        }
-        if (itemDto.getAvailable().isPresent()) {
-            oldItem.setAvailable(itemDto.getAvailable().get());
-        }
-        if (itemDto.getOwnerId().isPresent()) {
-            oldItem.setOwnerId(itemDto.getOwnerId().get());
-        }
-        if (itemDto.getRequest().isPresent()) {
-            oldItem.setRequest(itemDto.getRequest().get());
-        }
-        return items.get(itemId);
+    public Item updateItem(Item item) {
+        items.put(item.getId(), item);
+        return items.get(item.getId());
     }
 
     @Override

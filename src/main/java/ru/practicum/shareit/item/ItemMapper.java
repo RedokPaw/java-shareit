@@ -16,4 +16,25 @@ public class ItemMapper {
                 .request(Optional.ofNullable(item.getRequest()))
                 .build();
     }
+
+    public static Item toItem(ItemDto itemDto) {
+        Item item = new Item();
+        item.setId(itemDto.getId());
+        if (itemDto.getName().isPresent()) {
+            item.setName(itemDto.getName().get());
+        }
+        if (itemDto.getDescription().isPresent()) {
+            item.setDescription(itemDto.getDescription().get());
+        }
+        if (itemDto.getAvailable().isPresent()) {
+            item.setAvailable(itemDto.getAvailable().get());
+        }
+        if (itemDto.getOwnerId().isPresent()) {
+            item.setOwnerId(itemDto.getOwnerId().get());
+        }
+        if (itemDto.getRequest().isPresent()) {
+            item.setRequest(itemDto.getRequest().get());
+        }
+        return item;
+    }
 }

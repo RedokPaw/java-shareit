@@ -17,4 +17,11 @@ public class UserErrorHandler {
         log.error("Validation exception, check data");
         return e.getMessage();
     }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String handleUserNotFoundException(final UserNotFoundException e) {
+        log.error("User not found, check data");
+        return e.getMessage();
+    }
 }

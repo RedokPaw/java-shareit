@@ -1,7 +1,7 @@
 package ru.practicum.shareit.user.dao;
 
 import org.springframework.stereotype.Repository;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.exception.UserNotFoundException;
 import ru.practicum.shareit.user.exception.UserValidationException;
 import ru.practicum.shareit.user.model.User;
 
@@ -20,6 +20,10 @@ public class InMemoryUserStorage implements UserDao {
 
     @Override
     public User getUser(int id) {
+        User user = users.get(id);
+        if (user == null) {
+            throw new UserNotFoundException(format("User with id %s not found", id));
+        }
         return users.get(id);
     }
 
@@ -28,22 +32,12 @@ public class InMemoryUserStorage implements UserDao {
         validateEmail(user.getEmail());
         user.setId(generateId());
         users.put(user.getId(), user);
-        return users.get(id);
+        return users.get(user.getId());
     }
 
     @Override
-    public User updateUser(int userId, UserDto userDto) {
-        User oldUser = users.get(userId);
-        if (userDto.getEmail().isPresent()) {
-            String newEmail = userDto.getEmail().get();
-            if (!oldUser.getEmail().equals(newEmail)) {
-                validateEmail(newEmail);
-            }
-            oldUser.setEmail(userDto.getEmail().get());
-        }
-        if (userDto.getName().isPresent()) {
-            oldUser.setName(userDto.getName().get());
-        }
+    public User updateUser(int userId, User user) {
+        users.put(userId, user);
         return users.get(userId);
     }
 

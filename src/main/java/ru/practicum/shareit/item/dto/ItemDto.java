@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
 @Data
@@ -11,9 +13,9 @@ import java.util.Optional;
 @AllArgsConstructor
 public class ItemDto {
     private int id;
-    private Optional<String> name;
-    private Optional<String> description;
-    private Optional<Boolean> available;
+    private Optional<@NotBlank String> name;
+    private Optional<@NotBlank String> description;
+    private Optional<@NotNull Boolean> available;
     private Optional<Integer> ownerId;
     private Optional<String> request;
 }

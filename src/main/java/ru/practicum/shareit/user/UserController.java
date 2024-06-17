@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.Valid;
@@ -24,31 +23,31 @@ public class UserController {
     }
 
     @PostMapping
-    public UserDto createUser(@Valid @RequestBody User user) {
-        log.info("Create user: {}", user);
-        return UserMapper.toUserDto(userService.createUser(user));
+    public UserDto createUser(@Valid @RequestBody UserDto userDto) {
+        log.info("Create user: {}", userDto.toString());
+        return userService.createUser(userDto);
     }
 
     @GetMapping(value = "/{userId}")
     public UserDto getUser(@PathVariable int userId) {
         log.info("Get user: {}", userId);
-        return UserMapper.toUserDto(userService.getUser(userId));
+        return userService.getUser(userId);
     }
 
     @PatchMapping(value = "/{userId}")
-    public UserDto updateUser(@PathVariable int userId, @RequestBody User user) {
-        log.info("Update user: {}", user);
-        return UserMapper.toUserDto(userService.updateUser(userId, UserMapper.toUserDto(user)));
+    public UserDto updateUser(@PathVariable int userId, @RequestBody UserDto userDto) {
+        log.info("Update user: {}", userDto);
+        return userService.updateUser(userId, userDto);
     }
 
     @DeleteMapping(value = "/{userId}")
     public UserDto deleteUser(@Valid @PathVariable int userId) {
         log.info("Delete user: {}", userId);
-        return UserMapper.toUserDto(userService.deleteUser(userId));
+        return userService.deleteUser(userId);
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<UserDto> getAllUsers() {
         return userService.getAllUsers();
     }
 
