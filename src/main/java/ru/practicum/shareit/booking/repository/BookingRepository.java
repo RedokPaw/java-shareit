@@ -49,5 +49,4 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "and b.start > :now order by b.start asc")
     Booking findNextBookingByItem(int itemId, LocalDateTime now);
 
-
 }
