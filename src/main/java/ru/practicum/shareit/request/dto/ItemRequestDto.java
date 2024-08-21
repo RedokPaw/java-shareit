@@ -14,5 +14,4 @@ public class ItemRequestDto {
     private int id;
     private String description;
     private User requester;
-    private LocalDateTime created;
 }
