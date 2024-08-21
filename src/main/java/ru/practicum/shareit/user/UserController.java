@@ -1,12 +1,12 @@
 package ru.practicum.shareit.user;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.validation.Valid;
 import java.util.List;
 
 
@@ -41,9 +41,9 @@ public class UserController {
     }
 
     @DeleteMapping(value = "/{userId}")
-    public UserDto deleteUser(@Valid @PathVariable int userId) {
+    public void deleteUser(@Valid @PathVariable int userId) {
         log.info("Delete user: {}", userId);
-        return userService.deleteUser(userId);
+        userService.deleteUser(userId);
     }
 
     @GetMapping
