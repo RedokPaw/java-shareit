@@ -23,6 +23,8 @@ import ru.practicum.shareit.user.model.User;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static java.lang.String.format;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -35,10 +37,10 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingDto createBooking(BookingDto bookingDto, int ownerId) {
         LocalDateTime now = LocalDateTime.now();
-        User booker = userRepository.findById(ownerId)
-                .orElseThrow(() -> new UserNotFoundException("User for booking does not exist"));
+        User booker = getUser(ownerId);
         Item item = itemRepository.findById(bookingDto.getItemId())
-                .orElseThrow(() -> new ItemNotFoundException("Item for booking does not exist"));
+                .orElseThrow(() -> new ItemNotFoundException(
+                        format("Item for booking with id: %d does not exist", bookingDto.getItemId())));
 
         if (!item.getAvailable()) {
             throw new ItemIsNotAvailable("Cannot book item: item is not available");
@@ -59,10 +61,11 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto approveBooking(int bookingId, int ownerId, boolean isApproved) {
-        Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new BookingNotFoundException("Booking for approve not found"));
+        Booking booking = getBookingFromRepository(bookingId);
         if (booking.getItem().getOwner().getId() != ownerId) {
-            throw new BookingOwnerMismatchException("Requester owner id mismatching with booker owner id");
+            throw new BookingOwnerMismatchException(
+                    format("Requester owner id: %d mismatching with booker owner id: %d", ownerId,
+                            booking.getItem().getOwner().getId()));
         }
         booking.setStatus(isApproved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
         bookingRepository.save(booking);
@@ -71,8 +74,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto getBooking(int bookingId, int ownerId) {
-        Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new BookingNotFoundException("Booking for approve not found"));
+        Booking booking = getBookingFromRepository(bookingId);
         if (booking.getItem().getOwner().getId() != ownerId && booking.getBooker().getId() != ownerId) {
             throw new BookingOwnerMismatchException("Mismatch with owner or booker id");
         }
@@ -81,8 +83,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDto> getAllBookings(int bookerId, BookingState bookingState) {
-        userRepository.findById(bookerId)
-                .orElseThrow(() -> new UserNotFoundException("User does not exist"));
+        getUser(bookerId);
 
         LocalDateTime currentTime = LocalDateTime.now();
 
@@ -101,9 +102,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDto> getAllBookingsByItemOwner(int ownerId, BookingState bookingState) {
-        userRepository.findById(ownerId)
-                .orElseThrow(() -> new UserNotFoundException("User does not exist"));
-
+        getUser(ownerId);
         LocalDateTime currentTime = LocalDateTime.now();
 
         List<Booking> bookings = switch (bookingState) {
@@ -118,6 +117,18 @@ public class BookingServiceImpl implements BookingService {
         };
 
         return bookings.stream().map(BookingMapper::toBookingDto).toList();
+    }
+
+    private Booking getBookingFromRepository(int bookingId) {
+        return bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new BookingNotFoundException(
+                        format("Booking with id: %d for approve not found", bookingId)));
+    }
+
+    private User getUser(int userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(
+                        format("User for booking with id: %d  does not exist", userId)));
     }
 
     private void validateBookingTime(LocalDateTime start, LocalDateTime end, LocalDateTime now) {
