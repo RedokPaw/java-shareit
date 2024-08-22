@@ -18,9 +18,9 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -40,8 +40,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDtoWithBookingsAndComments getItem(int id) {
-        List<CommentDto> comments = commentRepository.findAllByItem_Id(id).stream()
-                .map(CommentMapper::toCommentDto).toList();
         Item item = itemRepository.findById(id).orElseThrow(() -> new ItemNotFoundException("Item not found"));
         /*
         Тесты не проходит (в тестах ожидается null в след и предыдущем бронировании
@@ -56,7 +54,7 @@ public class ItemServiceImpl implements ItemService {
         BookingDto lastBookingDto = lastBooking.map(BookingMapper::toBookingDto).orElse(null);
         BookingDto nextBookingDto = nextBooking.map(BookingMapper::toBookingDto).orElse(null);
         */
-        return ItemMapper.toItemDtoWithBookingsAndComments(item, comments, null, null);
+        return convertToItemDtoWithBookingsAndComments(item);
     }
 
     @Override
@@ -101,16 +99,16 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllItemsWithOwnerId(int ownerId) {
+    public List<ItemDtoWithBookingsAndComments> getAllItemsWithOwnerId(int ownerId) {
         return itemRepository.findAllByOwner_Id(ownerId).stream()
-                .map(ItemMapper::toDto)
+                .map(this::convertToItemDtoWithBookingsAndComments)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<ItemDto> findItemByDescription(String text) {
+    public List<ItemDtoWithBookingsAndComments> findItemByDescription(String text) {
         return itemRepository.findAllByDescriptionContaining(text).stream()
-                .map(ItemMapper::toDto)
+                .map(this::convertToItemDtoWithBookingsAndComments)
                 .collect(Collectors.toList());
     }
 
@@ -129,6 +127,12 @@ public class ItemServiceImpl implements ItemService {
         Comment comment = CommentMapper.toComment(commentDto, item, author);
         commentRepository.save(comment);
         return CommentMapper.toCommentDto(comment);
+    }
+
+    private ItemDtoWithBookingsAndComments convertToItemDtoWithBookingsAndComments(Item item) {
+        return ItemMapper.toItemDtoWithBookingsAndComments(item,
+                commentRepository.findAllByItem_Id(item.getId()).stream()
+                        .map(CommentMapper::toCommentDto).toList(), null, null);
     }
 
     private void validateItemOwner(int ownerId) {

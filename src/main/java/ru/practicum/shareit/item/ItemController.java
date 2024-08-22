@@ -42,13 +42,13 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") int ownerId) {
+    public List<ItemDtoWithBookingsAndComments> getAllItemsWithOwnerId(@RequestHeader("X-Sharer-User-Id") int ownerId) {
         log.info("Retrieving all items for ownerId: {}", ownerId);
         return itemService.getAllItemsWithOwnerId(ownerId);
     }
 
     @GetMapping(value = "/search")
-    public List<ItemDto> findItemsByText(@RequestParam("text") String text) {
+    public List<ItemDtoWithBookingsAndComments>  findItemsByText(@RequestParam("text") String text) {
         log.info("Retrieving all items for text: {}", text);
         return itemService.findItemByDescription(text);
     }
