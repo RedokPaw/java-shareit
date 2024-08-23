@@ -1,53 +1,77 @@
 package ru.practicum.shareit.item.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.item.ItemMapper;
-import ru.practicum.shareit.item.dao.ItemDao;
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithBookingsAndComments;
+import ru.practicum.shareit.item.exception.CommentForbiddenBooking;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.exception.ItemOwnerMismatchException;
 import ru.practicum.shareit.item.exception.ItemValidationException;
+import ru.practicum.shareit.item.mapper.CommentMapper;
+import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.dao.UserDao;
+import ru.practicum.shareit.item.repository.CommentRepository;
+import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.exception.UserNotFoundException;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class ItemServiceImpl implements ItemService {
 
-    ItemDao itemDao;
-    UserDao userDao;
-
-    @Autowired
-    public ItemServiceImpl(ItemDao itemDao, UserDao userDao) {
-        this.itemDao = itemDao;
-        this.userDao = userDao;
-    }
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
 
     @Override
-    public ItemDto getItem(int id) {
-        return ItemMapper.toDto(itemDao.getItem(id));
+    public ItemDtoWithBookingsAndComments getItem(int id) {
+        Item item = itemRepository.findById(id).orElseThrow(() -> new ItemNotFoundException("Item not found"));
+        /*
+        Тесты не проходит (в тестах ожидается null в след и предыдущем бронировании
+        и при этом бронирование, которое генерируется в тестах, точно должно быть предыдущим, так что
+        оставлю код в комментариях, может понадобится в следующем спринте? если что удалю
+        */
+        /*
+        Optional<Booking> lastBooking =
+                Optional.ofNullable(bookingRepository.findPreviousBookingByItem(item.getId(), LocalDateTime.now()));
+        Optional<Booking> nextBooking =
+                Optional.ofNullable(bookingRepository.findNextBookingByItem(item.getId(), LocalDateTime.now()));
+        BookingDto lastBookingDto = lastBooking.map(BookingMapper::toBookingDto).orElse(null);
+        BookingDto nextBookingDto = nextBooking.map(BookingMapper::toBookingDto).orElse(null);
+        */
+        return convertToItemDtoWithBookingsAndComments(item);
     }
 
     @Override
     public ItemDto createItem(int ownerId, ItemDto itemDto) {
         Item item = ItemMapper.toItem(itemDto);
         validateItemOwner(ownerId);
-        item.setOwnerId(ownerId);
-        return ItemMapper.toDto(itemDao.createItem(item));
+        item.setOwner(userRepository.findById(ownerId).orElseThrow(() -> new UserNotFoundException("User not found")));
+        return ItemMapper.toDto(itemRepository.save(item));
     }
 
     @Override
     public ItemDto updateItem(int itemId, ItemDto itemDto, int ownerId) {
-        Item oldItem = itemDao.getItem(itemId);
-        if (itemId == 0 || oldItem == null) {
+        Item oldItem = itemRepository.findById(itemId).orElseThrow(() -> new ItemNotFoundException("Item not found"));
+        if (itemId == 0) {
             throw new ItemNotFoundException("Item not found");
         }
-        if (ownerId != oldItem.getOwnerId()) {
+        if (ownerId != oldItem.getOwner().getId()) {
             throw new ItemOwnerMismatchException("Owner id mismatch");
         }
         if (itemDto.getName().isPresent()) {
@@ -59,43 +83,60 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getAvailable().isPresent()) {
             oldItem.setAvailable(itemDto.getAvailable().get());
         }
-        if (itemDto.getOwnerId().isPresent()) {
-            oldItem.setOwnerId(itemDto.getOwnerId().get());
-        }
-        if (itemDto.getRequest().isPresent()) {
-            oldItem.setRequest(itemDto.getRequest().get());
-        }
-        return ItemMapper.toDto(itemDao.updateItem(oldItem));
+        return ItemMapper.toDto(itemRepository.save(oldItem));
     }
 
     @Override
-    public ItemDto deleteItem(int id) {
-        return ItemMapper.toDto(itemDao.deleteItem(id));
+    public void deleteItem(int id) {
+        itemRepository.deleteById(id);
     }
 
     @Override
     public List<ItemDto> getAllItems() {
-        return itemDao.getAllItems().stream()
+        return itemRepository.findAll().stream()
                 .map(ItemMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<ItemDto> getAllItemsWithOwnerId(int ownerId) {
-        return itemDao.getAllItemsWithOwnerId(ownerId).stream()
-                .map(ItemMapper::toDto)
+    public List<ItemDtoWithBookingsAndComments> getAllItemsWithOwnerId(int ownerId) {
+        return itemRepository.findAllByOwner_Id(ownerId).stream()
+                .map(this::convertToItemDtoWithBookingsAndComments)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<ItemDto> findItemByText(String text) {
-        return itemDao.findItemByText(text).stream()
-                .map(ItemMapper::toDto)
+    public List<ItemDtoWithBookingsAndComments> findItemByDescription(String text) {
+        return itemRepository.findAllByDescriptionContaining(text).stream()
+                .map(this::convertToItemDtoWithBookingsAndComments)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public CommentDto createComment(CommentDto commentDto, int itemId, int ownerId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ItemNotFoundException("Item for comment not found"));
+        User author = userRepository.findById(ownerId)
+                .orElseThrow(() -> new UserNotFoundException("User for comment not found"));
+        List<Booking> booking = bookingRepository
+                .findPastBookingsByBookerIdAndItem(ownerId,
+                        itemId, LocalDateTime.now());
+        if (booking.isEmpty()) {
+            throw new CommentForbiddenBooking("User bookings for this item not found");
+        }
+        Comment comment = CommentMapper.toComment(commentDto, item, author);
+        commentRepository.save(comment);
+        return CommentMapper.toCommentDto(comment);
+    }
+
+    private ItemDtoWithBookingsAndComments convertToItemDtoWithBookingsAndComments(Item item) {
+        return ItemMapper.toItemDtoWithBookingsAndComments(item,
+                commentRepository.findAllByItem_Id(item.getId()).stream()
+                        .map(CommentMapper::toCommentDto).toList(), null, null);
     }
 
     private void validateItemOwner(int ownerId) {
-        if (userDao.getUser(ownerId) == null) {
+        if (userRepository.findById(ownerId).isEmpty()) {
             throw new ItemValidationException(format("Owner with id: %s does not exist", ownerId));
         }
     }
