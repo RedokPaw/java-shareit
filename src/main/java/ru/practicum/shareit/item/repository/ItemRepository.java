@@ -15,4 +15,6 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
     @Query(value = "from Item as i where (i.description ilike :description or i.name ilike :description)" +
             " and i.available is true")
     List<Item> findAllByDescriptionContaining(String description);
+
+    List<Item> findAllByRequest_Id(int id);
 }

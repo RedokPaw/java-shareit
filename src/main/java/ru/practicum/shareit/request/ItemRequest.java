@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -19,6 +21,8 @@ public class ItemRequest {
     private int id;
     @Column
     private String description;
+    @Column
+    private LocalDateTime created;
     @ManyToOne
     @JoinColumn(name = "requester_id")
     private User requester;

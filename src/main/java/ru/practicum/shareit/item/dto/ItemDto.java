@@ -16,6 +16,7 @@ public class ItemDto {
     private Optional<@NotBlank String> name;
     private Optional<@NotBlank String> description;
     private Optional<@NotNull Boolean> available;
+    private int requestId;
 
     public ItemDto() {
         name = Optional.empty();
