@@ -38,7 +38,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public ItemRequestDtoWithAnswer getRequestByRequestId(int requestId) {
-        getUserById(requestId);
         ItemRequest itemRequest = itemRequestRepository.findById(requestId).orElseThrow();
 
         return ItemRequestMapper.toItemRequestDtoWithAnswer(itemRequest,

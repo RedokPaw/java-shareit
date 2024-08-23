@@ -3,13 +3,7 @@ package ru.practicum.shareit.booking;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -18,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ru.practicum.shareit.booking.dto.BookItemRequestDto;
 import ru.practicum.shareit.booking.dto.BookingState;
+
+import java.util.List;
 
 
 @Controller
@@ -52,4 +48,22 @@ public class BookingController {
 		log.info("Get booking {}, userId={}", bookingId, userId);
 		return bookingClient.getBooking(userId, bookingId);
 	}
+
+	@PatchMapping("/{bookingId}")
+	public ResponseEntity<Object> bookingOwnerChangeStatus(@RequestHeader("X-Sharer-User-Id") Long userId,
+														   @PathVariable Long bookingId,
+														   @RequestParam(value = "approved") Boolean approved) {
+		log.info("GateWay approve booking from user: {} booking id: {} approve status: {}",
+				userId, bookingId, approved);
+		return bookingClient.approveBooking(userId, bookingId, approved);
+	}
+
+	@GetMapping(value = "/owner")
+	public ResponseEntity<Object> getAllBookingsByItemOwner(@RequestHeader("X-Sharer-User-Id") long userid,
+													  @RequestParam(required = false,
+															  defaultValue = "ALL") BookingState state) {
+		log.info("Gateway request for getting all bookings by item owner with id: {} ", userid);
+		return bookingClient.getAllBookingsByOwner(userid, state);
+	}
+
 }
