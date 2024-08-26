@@ -21,11 +21,11 @@ import java.util.Optional;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 
-@WebMvcTest(controllers = BookingController.class)
+@WebMvcTest(BookingController.class)
 @AutoConfigureDataJpa
 public class BookingControllerTest {
 
@@ -137,7 +137,7 @@ public class BookingControllerTest {
                         .header(USER_ID_HEADER, 1)
                         .queryParam("approved", "true"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(bookingDto.getId()), Long.class))
+                .andExpect(jsonPath("$.id", is(bookingDto.getId()), Integer.class))
                 .andExpect(jsonPath("$.start",
                         is(bookingDto.getStart().get().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))))
                 .andExpect(jsonPath("$.end",

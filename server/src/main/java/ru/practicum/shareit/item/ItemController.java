@@ -29,10 +29,10 @@ public class ItemController {
         return itemService.createItem(ownerId, itemDto);
     }
 
-    @PatchMapping(value = "/{id}")
-    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") int ownerId, @RequestBody ItemDto itemDto, @PathVariable int id) {
+    @PatchMapping(value = "/{itemId}")
+    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") int ownerId, @RequestBody ItemDto itemDto, @PathVariable int itemId) {
         log.info("Updating item: {}", itemDto);
-        return itemService.updateItem(id, itemDto, ownerId);
+        return itemService.updateItem(itemId, itemDto, ownerId);
     }
 
     @GetMapping(value = "/{id}")
