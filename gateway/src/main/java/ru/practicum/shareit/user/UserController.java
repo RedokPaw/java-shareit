@@ -36,7 +36,7 @@ public class UserController {
     public ResponseEntity<Object> createUser(@RequestBody @Valid UserRequestDto userRequestDto) {
         log.info("Gateway request for create user: {}", userRequestDto);
         if (userRequestDto.getName() == null || userRequestDto.getName().isBlank() || userRequestDto.getEmail() == null ||
-        userRequestDto.getEmail().isBlank()) {
+                userRequestDto.getEmail().isBlank()) {
             throw new UserValidationException(format("user name: %s or user email: %s is empty",
                     userRequestDto.getName(), userRequestDto.getEmail()));
         }

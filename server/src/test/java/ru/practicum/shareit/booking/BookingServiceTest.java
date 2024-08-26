@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -85,6 +84,7 @@ public class BookingServiceTest {
         assertEquals(bookingResultDto.getStart().get(), result.getStart().get());
         assertEquals(bookingResultDto.getEnd().get(), result.getEnd().get());
     }
+
     @Test
     public void createBookingShouldThrowExceptionWhenItemIsNotAvailable() {
         item.setAvailable(false);
@@ -94,10 +94,12 @@ public class BookingServiceTest {
 
         assertThrows(ItemIsNotAvailable.class, () -> bookingService.createBooking(bookingRequestDto, 1));
     }
+
     @Test
     public void createBookingShouldThrowExceptionWhenUserIsNotFound() {
         assertThrows(UserNotFoundException.class, () -> bookingService.createBooking(bookingRequestDto, 1));
     }
+
     @Test
     public void createBookingShouldThrowExceptionWhenItemIsNotFound() {
         when(userRepository.findById(anyInt())).thenReturn(Optional.ofNullable(user));
@@ -133,7 +135,7 @@ public class BookingServiceTest {
         when(bookingRepository.findById(anyInt())).thenReturn(Optional.of(booking));
 
         assertThrows(BookingOwnerMismatchException.class,
-                () -> bookingService.approveBooking(1,1,false));
+                () -> bookingService.approveBooking(1, 1, false));
     }
 
     @Test
@@ -150,7 +152,7 @@ public class BookingServiceTest {
         when(bookingRepository.findById(anyInt())).thenReturn(Optional.of(booking));
 
         assertThrows(BookingOwnerMismatchException.class,
-                () -> bookingService.getBooking(1,1));
+                () -> bookingService.getBooking(1, 1));
     }
 
     @Test
@@ -162,6 +164,7 @@ public class BookingServiceTest {
         assertNotNull(result);
 
     }
+
     @Test
     public void getAllBookingsWithStatePastShouldReturnListOfBookingsDto() {
         when(userRepository.findById(anyInt())).thenReturn(Optional.ofNullable(user));
@@ -171,6 +174,7 @@ public class BookingServiceTest {
         assertNotNull(result);
 
     }
+
     @Test
     public void getAllBookingsWithStateFutureShouldReturnListOfBookingsDto() {
         when(userRepository.findById(anyInt())).thenReturn(Optional.ofNullable(user));
@@ -180,6 +184,7 @@ public class BookingServiceTest {
         assertNotNull(result);
 
     }
+
     @Test
     public void getAllBookingsWithStateWaitingShouldReturnListOfBookingsDto() {
         when(userRepository.findById(anyInt())).thenReturn(Optional.ofNullable(user));
@@ -189,6 +194,7 @@ public class BookingServiceTest {
         assertNotNull(result);
 
     }
+
     @Test
     public void getAllBookingsWithStateRejectedShouldReturnListOfBookingsDto() {
         when(userRepository.findById(anyInt())).thenReturn(Optional.ofNullable(user));
@@ -198,6 +204,7 @@ public class BookingServiceTest {
         assertNotNull(result);
 
     }
+
     @Test
     public void getAllBookingsByItemOwnerShouldReturnListOfBookingsDto() {
         when(userRepository.findById(anyInt())).thenReturn(Optional.ofNullable(user));
@@ -206,7 +213,6 @@ public class BookingServiceTest {
 
         assertNotNull(result);
     }
-
 
 
 }

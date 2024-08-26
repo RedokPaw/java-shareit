@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,17 +20,16 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.item.service.ItemServiceImpl;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import java.util.List;
 import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ItemServiceTest {
@@ -91,6 +89,7 @@ public class ItemServiceTest {
                 .build();
         commentDto = CommentMapper.toCommentDto(comment);
     }
+
     @Test
     public void getItemShouldReturnItemDto() {
         when(itemRepository.findById(anyInt())).thenReturn(Optional.of(item));
@@ -136,14 +135,14 @@ public class ItemServiceTest {
         when(itemRepository.findById(anyInt())).thenReturn(Optional.of(item));
 
         assertThrows(ItemOwnerMismatchException.class,
-                () ->itemService.updateItem(item.getId(), itemDto, user.getId()+5));
+                () -> itemService.updateItem(item.getId(), itemDto, user.getId() + 5));
     }
 
     @Test
     public void updateItemShouldThrowWhenItemIdIsZero() {
 
         assertThrows(ItemNotFoundException.class,
-                () ->itemService.updateItem(0, itemDto, user.getId()+5));
+                () -> itemService.updateItem(0, itemDto, user.getId() + 5));
     }
 
     @Test
@@ -168,6 +167,7 @@ public class ItemServiceTest {
 
         assertNotNull(result);
     }
+
     @Test
     public void findItemByDescriptionShouldReturnListOfItemDto() {
         when(itemRepository.findAllByDescriptionContaining(anyString())).thenReturn(List.of(item));
@@ -187,6 +187,7 @@ public class ItemServiceTest {
 
         assertEquals(commentDto, result);
     }
+
     @Test
     public void createCommentShouldThrowWhenBookingIsMissing() {
         when(itemRepository.findById(anyInt())).thenReturn(Optional.of(item));

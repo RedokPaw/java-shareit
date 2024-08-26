@@ -10,8 +10,6 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.exception.ItemValidationException;
 
-import java.util.Collections;
-
 import static java.lang.String.format;
 
 @RequiredArgsConstructor
@@ -27,7 +25,7 @@ public class ItemController {
     public ResponseEntity<Object> createItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                                              @RequestBody @Valid ItemDto itemDto) {
         log.info("[Gateway] request item create from user with id: = {}, item: {}", userId, itemDto.getName());
-        if (itemDto.getName() == null ||itemDto.getName().isBlank() || itemDto.getDescription() == null ||
+        if (itemDto.getName() == null || itemDto.getName().isBlank() || itemDto.getDescription() == null ||
                 itemDto.getDescription().isBlank()) {
             throw new ItemValidationException(format("Item name: %s or description %s is missing",
                     itemDto.getName(), itemDto.getDescription()));
