@@ -33,10 +33,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto updateUser(int userId, UserDto userDto) {
         User oldUser = userRepository.getReferenceById(userId);
-        if (userDto.getEmail().isPresent()) {
+        if (userDto.getEmail().isPresent() && !userDto.getEmail().get().isBlank()) {
             oldUser.setEmail(userDto.getEmail().get());
         }
-        if (userDto.getName().isPresent()) {
+        if (userDto.getName().isPresent() && !userDto.getName().get().isBlank()) {
             oldUser.setName(userDto.getName().get());
         }
         return UserMapper.toUserDto(userRepository.save(oldUser));
