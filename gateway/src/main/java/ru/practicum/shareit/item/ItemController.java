@@ -8,8 +8,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.exception.ItemValidationException;
 
 import java.util.Collections;
+
+import static java.lang.String.format;
 
 @RequiredArgsConstructor
 @Validated
@@ -24,6 +27,11 @@ public class ItemController {
     public ResponseEntity<Object> createItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                                              @RequestBody @Valid ItemDto itemDto) {
         log.info("[Gateway] request item create from user with id: = {}, item: {}", userId, itemDto.getName());
+        if (itemDto.getName() == null ||itemDto.getName().isBlank() || itemDto.getDescription() == null ||
+                itemDto.getDescription().isBlank()) {
+            throw new ItemValidationException(format("Item name: %s or description %s is missing",
+                    itemDto.getName(), itemDto.getDescription()));
+        }
         return itemClient.createItem(userId, itemDto);
     }
 
@@ -52,10 +60,6 @@ public class ItemController {
     @GetMapping("/search")
     public ResponseEntity<Object> searchItems(@RequestHeader("X-Sharer-User-Id") Long userId,
                                               @RequestParam("text") String text) {
-
-        if (text == null || text.isBlank()) {
-            return ResponseEntity.ok(Collections.emptyList());
-        }
         log.info("[Gateway] search items for user with id = {} text: {}", userId, text);
         return itemClient.searchItem(userId, text);
     }
@@ -64,9 +68,6 @@ public class ItemController {
     public ResponseEntity<Object> createItemComment(@RequestBody final CommentDto commentShortDto,
                                                     @PathVariable final Long itemId,
                                                     @RequestHeader("X-Sharer-User-Id") Long userId) {
-        if (commentShortDto.getText().isBlank()) {
-            throw new IllegalArgumentException("Text cannot be blank");
-        }
         log.info("[Gateway] User with id = {} added comment for item with id = {}", userId, itemId);
         return itemClient.addNewComment(commentShortDto, itemId, userId);
     }

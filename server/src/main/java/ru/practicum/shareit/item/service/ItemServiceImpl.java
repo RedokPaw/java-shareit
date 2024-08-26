@@ -72,10 +72,10 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto updateItem(int itemId, ItemDto itemDto, int ownerId) {
-        Item oldItem = itemRepository.findById(itemId).orElseThrow(() -> new ItemNotFoundException("Item not found"));
         if (itemId == 0) {
             throw new ItemNotFoundException("Item not found");
         }
+        Item oldItem = itemRepository.findById(itemId).orElseThrow(() -> new ItemNotFoundException("Item not found"));
         if (ownerId != oldItem.getOwner().getId()) {
             throw new ItemOwnerMismatchException("Owner id mismatch");
         }

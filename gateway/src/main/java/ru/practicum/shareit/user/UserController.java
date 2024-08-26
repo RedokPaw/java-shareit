@@ -7,7 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserRequestDto;
+import ru.practicum.shareit.user.exception.UserValidationException;
+
+import static java.lang.String.format;
 
 @Controller
 @RequestMapping(path = "/users")
@@ -30,16 +33,21 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> createUser(@RequestBody @Valid UserDto userDto) {
-        log.info("Gateway request for create user: {}", userDto);
-        return userClient.createUser(userDto);
+    public ResponseEntity<Object> createUser(@RequestBody @Valid UserRequestDto userRequestDto) {
+        log.info("Gateway request for create user: {}", userRequestDto);
+        if (userRequestDto.getName() == null || userRequestDto.getName().isBlank() || userRequestDto.getEmail() == null ||
+        userRequestDto.getEmail().isBlank()) {
+            throw new UserValidationException(format("user name: %s or user email: %s is empty",
+                    userRequestDto.getName(), userRequestDto.getEmail()));
+        }
+        return userClient.createUser(userRequestDto);
     }
 
     @PatchMapping("/{userId}")
-    public ResponseEntity<Object> updateUser(@RequestBody UserDto userDto,
+    public ResponseEntity<Object> updateUser(@RequestBody UserRequestDto userRequestDto,
                                              @PathVariable Long userId) {
         log.info("Gateway request for update user with id: {}", userId);
-        return userClient.updateUser(userDto, userId);
+        return userClient.updateUser(userRequestDto, userId);
     }
 
     @DeleteMapping("/{userId}")

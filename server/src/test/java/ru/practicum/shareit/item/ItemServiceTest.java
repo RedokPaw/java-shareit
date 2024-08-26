@@ -12,6 +12,10 @@ import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBookingsAndComments;
+import ru.practicum.shareit.item.exception.CommentForbiddenBooking;
+import ru.practicum.shareit.item.exception.ItemNotFoundException;
+import ru.practicum.shareit.item.exception.ItemOwnerMismatchException;
+import ru.practicum.shareit.item.exception.ItemValidationException;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
@@ -97,6 +101,13 @@ public class ItemServiceTest {
     }
 
     @Test
+    public void getItemShouldThrowWhenItemNotFound() {
+        when(itemRepository.findById(anyInt())).thenReturn(Optional.empty());
+
+        assertThrows(ItemNotFoundException.class, () -> itemService.getItem(anyInt()));
+    }
+
+    @Test
     public void createItemShouldReturnItemDto() {
         when(itemRepository.save(any())).thenReturn(item);
         when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
@@ -104,6 +115,13 @@ public class ItemServiceTest {
 
         assertEquals(itemDto, result);
     }
+
+    @Test
+    public void createItemShouldThrowWhenOwnerDoesNotExist() {
+        when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
+        assertThrows(ItemValidationException.class, () -> itemService.createItem(1, itemDto));
+    }
+
     @Test
     public void updateItemShouldReturnItemDto() {
         when(itemRepository.findById(anyInt())).thenReturn(Optional.of(item));
@@ -112,6 +130,22 @@ public class ItemServiceTest {
 
         assertEquals(itemDto, result);
     }
+
+    @Test
+    public void updateItemShouldThrowWhenOwnerIdMismatching() {
+        when(itemRepository.findById(anyInt())).thenReturn(Optional.of(item));
+
+        assertThrows(ItemOwnerMismatchException.class,
+                () ->itemService.updateItem(item.getId(), itemDto, user.getId()+5));
+    }
+
+    @Test
+    public void updateItemShouldThrowWhenItemIdIsZero() {
+
+        assertThrows(ItemNotFoundException.class,
+                () ->itemService.updateItem(0, itemDto, user.getId()+5));
+    }
+
     @Test
     public void deleteItemShouldRunWithoutExceptions() {
         assertDoesNotThrow(() -> itemService.deleteItem(anyInt()));
@@ -153,5 +187,14 @@ public class ItemServiceTest {
 
         assertEquals(commentDto, result);
     }
+    @Test
+    public void createCommentShouldThrowWhenBookingIsMissing() {
+        when(itemRepository.findById(anyInt())).thenReturn(Optional.of(item));
+        when(userRepository.findById(anyInt())).thenReturn(Optional.ofNullable(user));
+        when(bookingRepository.findPastBookingsByBookerIdAndItem(anyInt(), anyInt(), any()))
+                .thenReturn(List.of());
+        assertThrows(CommentForbiddenBooking.class, () -> itemService.createComment(commentDto, item.getId(), user.getId()));
+    }
+
 
 }

@@ -10,7 +10,6 @@ import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.exception.BookingNotFoundException;
 import ru.practicum.shareit.booking.exception.BookingOwnerMismatchException;
-import ru.practicum.shareit.booking.exception.BookingTimeValidationException;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.exception.ItemIsNotAvailable;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
@@ -36,7 +35,6 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto createBooking(BookingDto bookingDto, int ownerId) {
-        LocalDateTime now = LocalDateTime.now();
         User booker = getUser(ownerId);
         Item item = itemRepository.findById(bookingDto.getItemId())
                 .orElseThrow(() -> new ItemNotFoundException(
@@ -45,13 +43,6 @@ public class BookingServiceImpl implements BookingService {
         if (!item.getAvailable()) {
             throw new ItemIsNotAvailable("Cannot book item: item is not available");
         }
-
-        LocalDateTime end = bookingDto.getEnd()
-                .orElseThrow(() -> new BookingTimeValidationException("end time is missing"));
-        LocalDateTime start = bookingDto.getStart()
-                .orElseThrow(() -> new BookingTimeValidationException("start time is missing"));
-        validateBookingTime(start, end, now);
-
 
         Booking booking = BookingMapper.toBooking(bookingDto, booker, item);
         booking.setStatus(BookingStatus.WAITING);
@@ -131,15 +122,4 @@ public class BookingServiceImpl implements BookingService {
                         format("User for booking with id: %d  does not exist", userId)));
     }
 
-    private void validateBookingTime(LocalDateTime start, LocalDateTime end, LocalDateTime now) {
-        if (end.isBefore(now)) {
-            throw new BookingTimeValidationException("end time cannot be in past");
-        }
-        if (end.isEqual(start)) {
-            throw new BookingTimeValidationException("end time must not equal to start time");
-        }
-        if (start.isBefore(now)) {
-            throw new BookingTimeValidationException("start time cannot be in past");
-        }
-    }
 }

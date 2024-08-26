@@ -8,12 +8,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class BookingErrorHandler {
 
-    @ExceptionHandler(BookingTimeValidationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleTimeValidationException(BookingTimeValidationException e) {
-        return e.getMessage();
-    }
-
     @ExceptionHandler(BookingNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleBookingNotFoundException(BookingNotFoundException e) {

@@ -7,7 +7,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.client.BaseClient;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserRequestDto;
 
 import java.util.Map;
 
@@ -25,8 +25,8 @@ public class UserClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> createUser(UserDto userDto) {
-        return post("", userDto);
+    public ResponseEntity<Object> createUser(UserRequestDto userRequestDto) {
+        return post("", userRequestDto);
     }
 
     public ResponseEntity<Object> getUserById(long userId) {
@@ -36,7 +36,7 @@ public class UserClient extends BaseClient {
         return get("/{userId}", userId, parameters);
     }
 
-    public ResponseEntity<Object> updateUser(UserDto userDto, long userId) {
+    public ResponseEntity<Object> updateUser(UserRequestDto userDto, long userId) {
         Map<String, Object> parameters = Map.of(
                 "userId", userId
         );

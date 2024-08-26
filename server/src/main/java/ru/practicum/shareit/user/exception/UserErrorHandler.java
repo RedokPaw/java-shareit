@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 @Slf4j
 public class UserErrorHandler {
-    @ExceptionHandler({ValidationException.class, UserValidationException.class})
+    @ExceptionHandler({ValidationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleValidationException(final ValidationException e) {
         log.error("Validation exception, check data");
