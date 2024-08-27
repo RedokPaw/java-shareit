@@ -6,8 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.practicum.shareit.item.dto.ItemAnswerDto;
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -18,12 +16,10 @@ import ru.practicum.shareit.request.service.ItemRequestServiceImpl;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 
@@ -72,6 +68,7 @@ public class RequestServiceTest {
         assertEquals(itemRequestDto.getDescription(), result.getDescription());
         assertEquals(itemRequestDto.getRequester(), result.getRequester());
     }
+
     @Test
     public void getRequestByRequestIdShouldReturnRequest() {
         Item itemForAnswer = new Item();
@@ -86,6 +83,7 @@ public class RequestServiceTest {
         assertEquals(itemRequestDto.getDescription(), result.getDescription());
         assertEquals(ItemMapper.toItemAnswerDto(itemForAnswer), result.getItems().getFirst());
     }
+
     @Test
     public void getAllRequestsByRequestIdShouldReturnRequest() {
         Item itemForAnswer = new Item();

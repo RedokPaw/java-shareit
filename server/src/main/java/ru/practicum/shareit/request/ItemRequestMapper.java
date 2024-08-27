@@ -26,6 +26,7 @@ public class ItemRequestMapper {
                 .created(itemRequestDto.getCreated())
                 .build();
     }
+
     public static ItemRequestDtoWithAnswer toItemRequestDtoWithAnswer(ItemRequest itemRequest, List<ItemAnswerDto> answers) {
         return ItemRequestDtoWithAnswer.builder()
                 .id(itemRequest.getId())

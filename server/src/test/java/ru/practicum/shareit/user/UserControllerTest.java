@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,19 +10,18 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.service.UserServiceImpl;
+
+import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
 @AutoConfigureDataJpa
@@ -64,6 +62,7 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.email", is(userDto.getEmail().get()), String.class));
 
     }
+
     @Test
     public void getUserShouldReturnUser() throws Exception {
         when(userService.getUser(anyInt())).thenReturn(userDto);
@@ -76,6 +75,7 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.email", is(userDto.getEmail().get()), String.class));
 
     }
+
     @Test
     public void updateUserShouldReturnUser() throws Exception {
         when(userService.updateUser(anyInt(), any())).thenReturn(userDto);
@@ -89,6 +89,7 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.email", is(userDto.getEmail().get()), String.class));
 
     }
+
     @Test
     public void deleteUserShouldReturnStatusOk() throws Exception {
         when(userService.updateUser(anyInt(), any())).thenReturn(userDto);
@@ -96,7 +97,8 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(USER_ID_HEADER, 1))
                 .andExpect(status().isOk());
-   }
+    }
+
     @Test
     public void getAllUsersShouldReturnUser() throws Exception {
         when(userService.getAllUsers()).thenReturn(List.of(userDto));

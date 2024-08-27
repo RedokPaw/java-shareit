@@ -3,7 +3,6 @@ package ru.practicum.shareit.item;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
@@ -96,6 +95,7 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$.id", is(itemDtoWithBookingsAndComments.getId()), Integer.class))
                 .andExpect(jsonPath("$.name", is(itemDtoWithBookingsAndComments.getName()), String.class));
     }
+
     @Test
     public void getAllItemShouldReturnItemDtoListAndStatusOk() throws Exception {
         Mockito.when(itemService.getAllItemsWithOwnerId(anyInt())).thenReturn(List.of(itemDtoWithBookingsAndComments));
