@@ -92,7 +92,7 @@ public class RequestServiceTest {
 
         when(userRepository.findById(anyInt())).thenReturn(Optional.of(itemRequest.getRequester()));
         when(itemRequestRepository.getAllByRequester_Id(anyInt())).thenReturn(List.of(itemRequest));
-        when(itemRepository.findAllByRequest_Id(anyInt())).thenReturn(List.of(itemForAnswer));
+        when(itemRepository.findAllByRequest_IdIn(any())).thenReturn(List.of(itemForAnswer));
 
         List<ItemRequestDtoWithAnswer> result = itemRequestService.getAllRequestsByRequesterId(anyInt());
         assertEquals(itemRequestDto.getId(), result.getFirst().getId());
