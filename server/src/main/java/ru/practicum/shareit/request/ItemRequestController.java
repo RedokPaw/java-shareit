@@ -20,22 +20,26 @@ public class ItemRequestController {
     @PostMapping
     public ItemRequestDto createItemRequest(@RequestBody ItemRequestDto itemRequestDto,
                                             @RequestHeader("X-Sharer-User-Id") int userId) {
+        log.info("request for request create: {}", itemRequestDto);
         return itemRequestService.createRequestItem(itemRequestDto, userId);
     }
 
     @GetMapping
     public List<ItemRequestDtoWithAnswer> getItemRequestsForUserWithAnswers(
             @RequestHeader("X-Sharer-User-Id") int userId) {
+        log.info("request to get user request with answers for userid: {}", userId);
         return itemRequestService.getAllRequestsByRequesterId(userId);
     }
 
     @GetMapping(value = "/{requestId}")
     public ItemRequestDtoWithAnswer getRequestWithAnswerById(@PathVariable int requestId) {
+        log.info("get request with anser by id: {}", requestId);
         return itemRequestService.getRequestByRequestId(requestId);
     }
 
     @GetMapping(value = "/all")
     public List<ItemRequestDto> getAllRequests(@RequestHeader("X-Sharer-User-Id") int userId) {
+        log.info("get all request for user: {}", userId);
         return itemRequestService.getAllRequests(userId);
     }
 
